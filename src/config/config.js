@@ -7,7 +7,7 @@ export default {
         // pixelArt: true,
     },
     scale: {
-        parent: 'big-ocean',
+        parent: 'hitormiss',
         autoCenter: true,
     },
 

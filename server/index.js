@@ -10,7 +10,7 @@ const createApp = () => {
     app.use(morgan("dev"));
 
     app.use(express.json());
-    app.use(express.urlencoded({ exteded: true }));
+    app.use(express.urlencoded({ extended: true }));
 
     app.use(compression());
     app.use(express.static(path.join(__dirname, "..", "public")));
@@ -31,7 +31,7 @@ const createApp = () => {
     });
 
     const startLinening = () => {
-        const server = app.listening(PORT, () => console.log(`Ready to hit on port ${PORT}`)
+        const server = app.listen(PORT, () => console.log(`Ready to hit on port ${PORT}`)
         );
     }
 
