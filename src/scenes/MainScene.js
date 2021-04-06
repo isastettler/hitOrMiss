@@ -7,15 +7,15 @@ export default class MainScene extends Phaser.Scene {
         super("MainScene");
     }
     preload(){
-        this.load.spritesheet("avatar", "assets/avatar.png", {
-            frameWidth: 32,
-            frameHeight: 38
+        this.load.spritesheet("avatar", "/assets/avatar.png", {
+            frameWidth: 40,
+            frameHeight: 50
         });
-        this.load.spritesheet("bubble", "assets/pink_bubble.png", {
-            frameWidth: 20,
-            frameHeight: 20
+        this.load.spritesheet("bubble", "/assets/pink_bubble.png", {
+            frameWidth: 16,
+            frameHeight: 16
         });
-        this.load.image("grass", "assets/grass_background.png")
+        this.load.image("grass", "/assets/grass_background.png")
     }
 
     createAvatar(scene, x, y, sprite) {
@@ -23,7 +23,8 @@ export default class MainScene extends Phaser.Scene {
     }
 
     create(){
-        this.add.image(0, 0, "grass");
+        console.log("mainScene is created!")
+        this.add.image(0, 0, "grass").setScale(1.3);
         this.createAvatar(this, 300, 300, "avatar");
     }
     update(){}

@@ -24,11 +24,11 @@ const createApp = () => {
             next();
         }
     });
-}
-
     app.use("*", (req, res) => {
         res.sendFile(path.join(__dirname, "..", "public/index.html"));
     });
+}
+
 
     const startLinening = () => {
         const server = app.listen(PORT, () => console.log(`Ready to hit on port ${PORT}`)

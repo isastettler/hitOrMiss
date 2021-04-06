@@ -16,6 +16,7 @@ class Game extends Phaser.Game {
         this.scene.add("MainScene", MainScene);
         this.scene.start("MainScene");
 
+        console.log("game is starting up!");
     }
 }
 
