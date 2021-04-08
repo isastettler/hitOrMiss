@@ -8,4 +8,23 @@ export default class Avatar extends Phaser.Physics.Arcade.Sprite {
         this.scene.add.existing(this);
         this.scene.physics.world.enable(this);
     }
+
+    updateMovement(cursors){
+        if(cursors.right.isDown){
+            this.anims.play("right", true)
+            this.setVelocityX(30);
+        }
+        else if(cursors.left.isDown){
+            this.anims.play("left", true)
+            this.setVelocityX(-30)
+
+        }
+        else {
+            this.anims.play("stand")
+            this.setVelocityX(0)
+        }
+    }
+    update(cursors){
+        this.updateMovement(cursors);
+    }
 }
