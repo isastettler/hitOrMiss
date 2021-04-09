@@ -1,8 +1,8 @@
 export default {
     type: Phaser.AUTO,
 
-    width: 800,
-    height: 600,
+    width: 600,
+    height: 300,
     render: {
         // pixelArt: true,
     },

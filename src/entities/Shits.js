@@ -13,7 +13,7 @@ export default class Shit extends Phaser.Physics.Arcade.Sprite {
         this.body.world.on('worldbounds', function(body) {
             if (body.gameObject === this) {
                 this.anims.play("shitHits");
-            }
+                }
             }, this);
     }
 }

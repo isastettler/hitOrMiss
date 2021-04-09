@@ -21,4 +21,5 @@ export default class Bird extends Phaser.Physics.Arcade.Sprite {
             }
             }, this);
     }
+   
 }
