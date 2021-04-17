@@ -8,7 +8,6 @@ export default class Avatar extends Phaser.Physics.Arcade.Sprite {
         this.scene.add.existing(this);
         this.scene.physics.world.enable(this);
         this.body.collideWorldBounds = true;
-
     }
 
     updateMovement(cursors){
@@ -19,7 +18,6 @@ export default class Avatar extends Phaser.Physics.Arcade.Sprite {
         else if(cursors.left.isDown){
             this.anims.play("left", true)
             this.setVelocityX(-30)
-
         }
         else {
             this.anims.play("stand")

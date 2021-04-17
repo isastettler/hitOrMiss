@@ -18,24 +18,29 @@ export default class MainScene extends Phaser.Scene {
             frameWidth: 48,
             frameHeight: 48
         })
-        this.load.spritesheet("bubble", "/assets/pink_bubble.png", {
-            frameWidth: 16,
-            frameHeight: 16
-        });
         this.load.image("poop", "/assets/poop.png")
-        this.load.image("grass", "/assets/background.png")
+        this.load.image("bg", "/assets/background.png")
     }
     onEvent(){
-        createShit(this, "bubble", this.birdCoordinates);
+        createShit(this, "poop", this.birdCoordinates);
     }
 
     create(){
-        this.add.image(300, 110, "grass").setScale(0.5);
+        this.add.image(300, 110, "bg").setScale(0.5);
         this.physics.world.setBounds(-10, 0, 620, 300);
         createAvatar(this, 300, 250, "avatar");
+    
+        this.avatar.flash = this.tweens.add({
+            targets: this.avatar,
+            alpha: 0.5,
+            ease: 'Cubic.easeOut',  
+            duration: 70,
+            repeat: 5,
+            yoyo: true,
+            paused: true
+        })
         createBird(this, "bird");
         this.birdCoordinates = this.bird.getBounds();
-        console.log("birdCoordinates-->", this.birdCoordinates)
         this.timer = this.time.addEvent({
 			delay: 1000,
 			callback: this.onEvent,
@@ -64,7 +69,6 @@ export default class MainScene extends Phaser.Scene {
         if(this.avatar){
             this.avatar.update(this.cursors);
         }
-
         if(this.birdCoordinates){
             this.birdCoordinates = this.bird.getBounds();
         }
@@ -85,12 +89,9 @@ function createBird(scene, sprite) {
     scene.bird = new Bird(scene, 790, y, sprite).setSize(0.1, 0.1);    
 }
 function createShit(scene, sprite, coordinates){
-    createShitAnimation(scene, "bubble");
     let y = coordinates.y + 48;
     let x = coordinates.x + 24;
-    console.log(x, y);
-    let newShit = new Shit(scene, x, y, sprite).setScale(.5);
-    newShit.anims.play("shit", true);
+    let newShit = new Shit(scene, x, y, sprite).setScale(.2);
     scene.shits.add(newShit);
 }
 function createBirdAnimations(scene, sprite){
@@ -141,31 +142,9 @@ function createAvatarAnimations(scene, sprite){
     });
 }
 
-function createShitAnimation(scene, sprite){
-    scene.anims.create({
-        key: "shitHits",
-        frames: scene.anims.generateFrameNumbers(sprite, {
-            start: 1,
-            end: 5
-        }),
-        frameRate: 5,
-        repeat: 1
-    })
-    scene.anims.create({
-        key: "shit",
-        frames: scene.anims.generateFrameNumbers(sprite, {
-            start: 0,
-            end: 0
-        })
-    })
-}
-async function onCollition(avatar, shit){
-    shit.anims.play("shitHits");
+function onCollition(avatar, shit){
     avatar.hitCount += 1;
-        this.score.setText(`you got hit: ${avatar.hitCount}`)
-    await sleep(1000)
+    avatar.flash.play();
+    this.score.setText(`you got hit: ${avatar.hitCount}`)
     shit.destroy();
-}
-async function sleep(delay) {
-    return new Promise(resolve => setTimeout(() => resolve(true), delay));
 }

@@ -22,8 +22,4 @@ export default {
         createContainer: true,
     },
     scene: [],
-    audio: {
-        disableWebAudio: true,
-        noAudio: false
-    },
 }
