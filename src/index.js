@@ -8,12 +8,14 @@ import "phaser";
 import config from "./config/config";
 
 import MainScene from "./scenes/MainScene";
+import GameOver from "./scenes/GameOver";
 
 class Game extends Phaser.Game {
     constructor() {
         super(config);
 
         this.scene.add("MainScene", MainScene);
+        this.scene.add("GameOver", GameOver);
         this.scene.start("MainScene");
     }
 }

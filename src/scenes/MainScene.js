@@ -27,7 +27,7 @@ export default class MainScene extends Phaser.Scene {
 
     create(){
         this.add.image(300, 110, "bg").setScale(0.5);
-        this.physics.world.setBounds(-10, 0, 620, 300);
+        this.physics.world.setBounds(-10, 0, 620, 275);
         createAvatar(this, 300, 250, "avatar");
     
         this.avatar.flash = this.tweens.add({
@@ -37,6 +37,17 @@ export default class MainScene extends Phaser.Scene {
             duration: 70,
             repeat: 5,
             yoyo: true,
+            paused: true
+        })
+        this.avatar.die = this.tweens.add({
+            targets: this.avatar,
+            props: {
+                y: {value: 170, ease: 'Linear'}
+            },
+            duration: 500,
+            ease: 'Linear',
+            yoyo: true,
+            repeat: 0,
             paused: true
         })
         createBird(this, "bird");
@@ -68,6 +79,10 @@ export default class MainScene extends Phaser.Scene {
         //check on keyboard controls for movement update
         if(this.avatar){
             this.avatar.update(this.cursors);
+            let y = this.avatar.getBounds().y
+            if(y > 300){
+                this.physics.pause();
+            }
         }
         if(this.birdCoordinates){
             this.birdCoordinates = this.bird.getBounds();
@@ -144,7 +159,15 @@ function createAvatarAnimations(scene, sprite){
 
 function onCollition(avatar, shit){
     avatar.hitCount += 1;
-    avatar.flash.play();
     this.score.setText(`you got hit: ${avatar.hitCount}`)
-    shit.destroy();
+    if(avatar.hitCount === 1){
+        console.log("game over")
+        avatar.die.play()
+        avatar.died()
+        this.scene.launch("GameOver")
+        console.log(avatar.getBounds())
+    } else {
+        avatar.flash.play();
+        shit.destroy();
+    }
 }
