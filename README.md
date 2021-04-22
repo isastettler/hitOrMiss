@@ -3,9 +3,11 @@
 
 To run the code on your local machine
 
-``` git clone https://github.com/isastettler/hitOrMiss.git
+``` 
+git clone https://github.com/isastettler/hitOrMiss.git
 npm install
-npm run start-dev```
+npm run start-dev
+```
 
 open you browser and run the game on localhost://8080
 
