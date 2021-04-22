@@ -5,6 +5,6 @@ export default class GameOver extends Phaser.Scene{
         super("GameOver")
     }
     create(){
-       let text = this.add.text(250, 150, "Game Over");
+       let text = this.add.text(220, 130, `Game Over\n\nYou are full of shit`, {align: "center"});
     }
 }

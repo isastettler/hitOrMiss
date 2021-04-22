@@ -20,16 +20,19 @@ export default class MainScene extends Phaser.Scene {
         })
         this.load.image("poop", "/assets/poop.png")
         this.load.image("bg", "/assets/background.png")
+        
     }
-    onEvent(){
-        createShit(this, "poop", this.birdCoordinates);
-    }
-
+    
     create(){
         this.add.image(300, 110, "bg").setScale(0.5);
         this.physics.world.setBounds(-10, 0, 620, 275);
         createAvatar(this, 300, 250, "avatar");
+
+        this.countdown = 30;
+        this.text= this.add.text(50, 15, `${formatTime(this.countdown)}`)
+        this.timedEvent = this.time.addEvent({delay: 1000, callback: onTime, callbackScope: this, loop: true})
     
+    // TWEENS RUN IN CASE OF AVATAR HIT OR DIED
         this.avatar.flash = this.tweens.add({
             targets: this.avatar,
             alpha: 0.5,
@@ -54,7 +57,7 @@ export default class MainScene extends Phaser.Scene {
         this.birdCoordinates = this.bird.getBounds();
         this.timer = this.time.addEvent({
 			delay: 1000,
-			callback: this.onEvent,
+			callback: onEvent,
 			callbackScope: this,
 			repeat: -1
 		});
@@ -160,14 +163,34 @@ function createAvatarAnimations(scene, sprite){
 function onCollition(avatar, shit){
     avatar.hitCount += 1;
     this.score.setText(`you got hit: ${avatar.hitCount}`)
-    if(avatar.hitCount === 1){
-        console.log("game over")
+    if(avatar.hitCount === 2){
         avatar.die.play()
         avatar.died()
+        this.timedEvent.paused = true;
         this.scene.launch("GameOver")
-        console.log(avatar.getBounds())
     } else {
         avatar.flash.play();
         shit.destroy();
     }
+}
+
+function onEvent(){
+    createShit(this, "poop", this.birdCoordinates);
+}
+
+function onTime(){
+    this.countdown--;
+    if(this.countdown === 0){
+        this.scene.launch("WinnerScene");
+        this.physics.pause();
+        this.timedEvent.paused = true;
+    }
+    this.text.setText(`${formatTime(this.countdown)}`)
+}
+
+function formatTime(seconds) {
+    let minutes = Math.floor(seconds/60);
+    let restSeconds = seconds % 60;
+    restSeconds = restSeconds.toString().padStart(2, "0")
+    return `${minutes}:${restSeconds}`
 }

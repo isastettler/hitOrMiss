@@ -9,6 +9,7 @@ import config from "./config/config";
 
 import MainScene from "./scenes/MainScene";
 import GameOver from "./scenes/GameOver";
+import WinnerScene from "./scenes/WinnerScene";
 
 class Game extends Phaser.Game {
     constructor() {
@@ -16,6 +17,7 @@ class Game extends Phaser.Game {
 
         this.scene.add("MainScene", MainScene);
         this.scene.add("GameOver", GameOver);
+        this.scene.add("WinnerScene", WinnerScene);
         this.scene.start("MainScene");
     }
 }
