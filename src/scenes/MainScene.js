@@ -28,7 +28,7 @@ export default class MainScene extends Phaser.Scene {
         this.physics.world.setBounds(-10, 0, 620, 275);
         createAvatar(this, 300, 250, "avatar");
 
-        this.countdown = 30;
+        this.countdown = 150;
         this.text= this.add.text(50, 15, `${formatTime(this.countdown)}`)
         this.timedEvent = this.time.addEvent({delay: 1000, callback: onTime, callbackScope: this, loop: true})
     
@@ -163,7 +163,7 @@ function createAvatarAnimations(scene, sprite){
 function onCollition(avatar, shit){
     avatar.hitCount += 1;
     this.score.setText(`you got hit: ${avatar.hitCount}`)
-    if(avatar.hitCount === 2){
+    if(avatar.hitCount === 5){
         avatar.die.play()
         avatar.died()
         this.timedEvent.paused = true;
