@@ -162,8 +162,10 @@ function createAvatarAnimations(scene, sprite){
 
 function onCollition(avatar, shit){
     avatar.hitCount += 1;
+    console.log(avatar.hitCount)
     this.score.setText(`you got hit: ${avatar.hitCount}`)
     if(avatar.hitCount === 5){
+        shit.destroy();
         avatar.die.play()
         avatar.died()
         this.timedEvent.paused = true;
