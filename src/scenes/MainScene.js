@@ -53,14 +53,18 @@ export default class MainScene extends Phaser.Scene {
             repeat: 0,
             paused: true
         })
+        this.poops = Phaser.Math.Between(500, 1000);
+        this.birds = this.add.group();
         createBird(this, "bird");
-        this.birdCoordinates = this.bird.getBounds();
-        this.timer = this.time.addEvent({
-			delay: 1000,
-			callback: onEvent,
-			callbackScope: this,
-			repeat: -1
-		});
+        this.birds.getChildren().forEach(bird => {
+            bird.timer = this.time.addEvent({
+                delay: this.poops,
+                callback: onEvent,
+                callbackScope: this,
+                repeat: -1
+            });
+        })
+        this.timer = 
         this.score = this.add.text(50, 30, `you got hit: ${this.avatar.hitCount}`)
         this.shits = this.add.group();
         this.physics.add.collider(
@@ -87,9 +91,6 @@ export default class MainScene extends Phaser.Scene {
                 this.physics.pause();
             }
         }
-        if(this.birdCoordinates){
-            this.birdCoordinates = this.bird.getBounds();
-        }
     }
 }
 
@@ -103,10 +104,12 @@ function createAvatar(scene, x, y, sprite) {
 }
 function createBird(scene, sprite) {
     createBirdAnimations(scene, "bird");
-    let y = Math.ceil(Math.random() * 100 + 50);
-    scene.bird = new Bird(scene, 790, y, sprite).setSize(0.1, 0.1);    
+    let y = Phaser.Math.Between(10, 100) + 50
+    // let y = Math.ceil(Math.random() * 100 + 50);
+    let newBird = new Bird(scene, 790, y, sprite).setSize(0.1, 0.1);
+    scene.birds.add(newBird)    
 }
-function createShit(scene, sprite, coordinates){
+export function createShit(scene, sprite, coordinates){
     let y = coordinates.y + 48;
     let x = coordinates.x + 24;
     let newShit = new Shit(scene, x, y, sprite).setScale(.2);
@@ -162,9 +165,8 @@ function createAvatarAnimations(scene, sprite){
 
 function onCollition(avatar, shit){
     avatar.hitCount += 1;
-    console.log(avatar.hitCount)
     this.score.setText(`you got hit: ${avatar.hitCount}`)
-    if(avatar.hitCount === 5){
+    if(avatar.hitCount === 10){
         shit.destroy();
         avatar.die.play()
         avatar.died()
@@ -177,11 +179,17 @@ function onCollition(avatar, shit){
 }
 
 function onEvent(){
-    createShit(this, "poop", this.birdCoordinates);
+    this.birds.getChildren().forEach(bird => {
+        createShit(this, "poop", bird.getBounds());
+    })
 }
 
 function onTime(){
     this.countdown--;
+    if(this.countdown === 120 || this.countdown === 50){
+        //does not create a new bird that poops but takes the poop away from the other bird
+        createBird(this, "bird")
+    }
     if(this.countdown === 0){
         this.scene.launch("WinnerScene");
         this.physics.pause();

@@ -7,7 +7,8 @@ export default class Shit extends Phaser.Physics.Arcade.Sprite {
         this.scene = scene;
         this.scene.add.existing(this);
         this.scene.physics.world.enable(this);
-        this.setVelocityY(60);
+        this.setVelocityY(Phaser.Math.Between(60, 80))
+        // this.setVelocityY(60);
         this.setCollideWorldBounds(true);
         this.body.onWorldBounds = true;
         this.body.world.on('worldbounds', function(body) {
