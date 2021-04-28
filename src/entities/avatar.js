@@ -12,18 +12,24 @@ export default class Avatar extends Phaser.Physics.Arcade.Sprite {
             this.setVelocityY(150)
             this.body.collideWorldBounds = false
         }
+        this.avatarFacingRight = false;
     }
     updateMovement(cursors){
         if(cursors.right.isDown){
+            this.avatarFacingRight = true;
             this.anims.play("right", true)
             this.setVelocityX(30);
         }
         else if(cursors.left.isDown){
+            this.avatarFacingRight = false;
             this.anims.play("left", true)
             this.setVelocityX(-30)
         }
+        else if(cursors.up.isDown){
+            this.avatarFacingRight ? this.anims.play("shoot-right", true) : this.anims.play("shoot-left", true)
+        }
         else {
-            this.anims.play("stand")
+            this.avatarFacingRight ?  this.anims.play("stand-right") : this.anims.play("stand-left", true)
             this.setVelocityX(0)
         }
     }

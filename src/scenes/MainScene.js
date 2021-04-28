@@ -11,12 +11,16 @@ export default class MainScene extends Phaser.Scene {
     //PRELOAD IS THE PLACE TO LAOD ALL YOUR FILES
     preload(){
         this.load.spritesheet("avatar", "/assets/avatar.png", {
-            frameWidth: 50,
-            frameHeight: 50
+            frameWidth: 48,
+            frameHeight: 48
         });
         this.load.spritesheet("bird", "/assets/bird.png", {
             frameWidth: 48,
             frameHeight: 48
+        })
+        this.load.spritesheet("projectile", "/assets/projectile.png", {
+            frameWidth: 32,
+            frameHeight: 32
         })
         this.load.image("poop", "/assets/poop.png")
         this.load.image("bg", "/assets/background.png")
@@ -25,8 +29,8 @@ export default class MainScene extends Phaser.Scene {
     
     create(){
         this.add.image(300, 110, "bg").setScale(0.5);
-        this.physics.world.setBounds(-10, 0, 620, 275);
-        createAvatar(this, 300, 250, "avatar");
+        this.physics.world.setBounds(-10, 0, 620, 280);
+        createAvatar(this, 300, 275, "avatar");
 
         this.countdown = 150;
         this.text= this.add.text(50, 15, `${formatTime(this.countdown)}`)
@@ -78,6 +82,7 @@ export default class MainScene extends Phaser.Scene {
         this.cursors = this.input.keyboard.addKeys({
             left: Phaser.Input.Keyboard.KeyCodes.LEFT,
             right: Phaser.Input.Keyboard.KeyCodes.RIGHT,
+            up: Phaser.Input.Keyboard.KeyCodes.UP,
         })
         
 
@@ -98,7 +103,7 @@ export default class MainScene extends Phaser.Scene {
 function createAvatar(scene, x, y, sprite) {
     createAvatarAnimations(scene, "avatar");
     scene.avatar = new Avatar(scene, x, y, sprite);
-    scene.avatar.anims.play("stand")
+    scene.avatar.anims.play("stand-left")
     scene.avatar.hitCount = 0;
     scene.avatar.setPushable(false);
 }
@@ -135,19 +140,37 @@ function createBirdAnimations(scene, sprite){
         repeat: -1
     })
 }
-function createAvatarAnimations(scene, sprite){
+function createShooting(scene, sprite){
     scene.anims.create({
-        key: "stand",
+        key: "shot",
         frames: scene.anims.generateFrameNumbers(sprite, {
             start: 0,
-            end: 0
+            end: 8,
+        }),
+        frameRate: 8,
+        repeat: -1
+    })
+}
+function createAvatarAnimations(scene, sprite){
+    scene.anims.create({
+        key: "stand-right",
+        frames: scene.anims.generateFrameNumbers(sprite, {
+            start: 56,
+            end: 56
+        })
+    });
+    scene.anims.create({
+        key: "stand-left",
+        frames: scene.anims.generateFrameNumbers(sprite, {
+            start: 48,
+            end: 48
         })
     });
     scene.anims.create({
         key: "right",
         frames: scene.anims.generateFrameNumbers(sprite, {
-            start: 4,
-            end: 7
+            start: 24,
+            end: 31
         }),
         frameRate: 4,
         repeat: -1
@@ -155,18 +178,36 @@ function createAvatarAnimations(scene, sprite){
     scene.anims.create({
         key: "left",
         frames: scene.anims.generateFrameNumbers(sprite, {
-            start: 8, 
-            end: 11
+            start: 16, 
+            end: 23
         }),
         frameRate: 4,
         repeat: -1
     });
+    scene.anims.create({
+        key: "shoot-right",
+        frames: scene.anims.generateFrameNumbers(sprite, {
+            start: 40,
+            end: 44,
+        }),
+        frameRate: 6,
+        repeat: 1
+    })
+    scene.anims.create({
+        key: "shoot-left",
+        frames: scene.anims.generateFrameNumbers(sprite, {
+            start: 32,
+            end: 36,
+        }),
+        frameRate: 6,
+        repeat: 1
+    })
 }
 
 function onCollition(avatar, shit){
     avatar.hitCount += 1;
     this.score.setText(`you got hit: ${avatar.hitCount}`)
-    if(avatar.hitCount === 10){
+    if(avatar.hitCount === 1){
         shit.destroy();
         avatar.die.play()
         avatar.died()
