@@ -1,5 +1,4 @@
 import "phaser";
-import createShit from "../scenes/MainScene";
 
 export default class Bird extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y, spriteKey, shits) {
