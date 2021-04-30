@@ -2,7 +2,9 @@ import "phaser";
 
 import Avatar from "../entities/Avatar";
 import Bird from "../entities/Bird";
+import Bullet from "../entities/Bullet";
 import Shit from "../entities/Shits";
+import Explosion from "../entities/Explosion";
 
 export default class MainScene extends Phaser.Scene {
     constructor() {
@@ -18,9 +20,13 @@ export default class MainScene extends Phaser.Scene {
             frameWidth: 48,
             frameHeight: 48
         })
-        this.load.spritesheet("projectile", "/assets/projectile.png", {
+        this.load.spritesheet("bullet", "/assets/bullet.png", {
             frameWidth: 32,
             frameHeight: 32
+        })
+        this.load.spritesheet("explosion", "/assets/explosion.png", {
+            frameWidth: 55,
+            frameHeight: 55
         })
         this.load.image("poop", "/assets/poop.png")
         this.load.image("bg", "/assets/background.png")
@@ -29,37 +35,42 @@ export default class MainScene extends Phaser.Scene {
     
     create(){
         this.add.image(300, 110, "bg").setScale(0.5);
-        this.physics.world.setBounds(-10, 0, 620, 280);
+        this.physics.world.setBounds(-10, 0, 620, 270);
         createAvatar(this, 300, 275, "avatar");
 
+        // TWEENS RUN IN CASE OF AVATAR HIT OR DIED
+            this.avatar.flash = this.tweens.add({
+                targets: this.avatar,
+                alpha: 0.5,
+                ease: 'Cubic.easeOut',  
+                duration: 70,
+                repeat: 5,
+                yoyo: true,
+                paused: true
+            })
+            this.avatar.die = this.tweens.add({
+                targets: this.avatar,
+                props: {
+                    y: {value: 170, ease: 'Linear'}
+                },
+                duration: 500,
+                ease: 'Linear',
+                yoyo: true,
+                paused: true
+            })
+        // CREATE THE COUNTDOWN 
         this.countdown = 150;
+        this.birdCount = 0;
         this.text= this.add.text(50, 15, `${formatTime(this.countdown)}`)
+        this.score = this.add.text(50, 30, `you got hit: ${this.avatar.hitCount}\nyou killed: ${this.birdCount} birds`)
         this.timedEvent = this.time.addEvent({delay: 1000, callback: onTime, callbackScope: this, loop: true})
-    
-    // TWEENS RUN IN CASE OF AVATAR HIT OR DIED
-        this.avatar.flash = this.tweens.add({
-            targets: this.avatar,
-            alpha: 0.5,
-            ease: 'Cubic.easeOut',  
-            duration: 70,
-            repeat: 5,
-            yoyo: true,
-            paused: true
-        })
-        this.avatar.die = this.tweens.add({
-            targets: this.avatar,
-            props: {
-                y: {value: 170, ease: 'Linear'}
-            },
-            duration: 500,
-            ease: 'Linear',
-            yoyo: true,
-            repeat: 0,
-            paused: true
-        })
-        this.poops = Phaser.Math.Between(500, 1000);
+        // CREATE GROUPS TO ADD EACH CRAETED BIRD/BIRDSHIT/BULLET
         this.birds = this.add.group();
+        this.shits = this.add.group();
+        this.bullets = this.add.group();
+
         createBird(this, "bird");
+        this.poops = Phaser.Math.Between(500, 1000);
         this.birds.getChildren().forEach(bird => {
             bird.timer = this.time.addEvent({
                 delay: this.poops,
@@ -68,9 +79,7 @@ export default class MainScene extends Phaser.Scene {
                 repeat: -1
             });
         })
-        this.timer = 
-        this.score = this.add.text(50, 30, `you got hit: ${this.avatar.hitCount}`)
-        this.shits = this.add.group();
+        //ADD COLLITON BETWEEN BIRDSHITS AND AVATAR
         this.physics.add.collider(
 			this.avatar,
 			this.shits,
@@ -78,13 +87,21 @@ export default class MainScene extends Phaser.Scene {
             null,
             this
 		);
-        //add keyboard controls
+        this.physics.add.collider(
+            this.birds,
+            this.bullets,
+            onBulletHit,
+            null,
+            this
+        )
+        //ADD KEYBOARD CONTROLLS FOR NAVIGATION
         this.cursors = this.input.keyboard.addKeys({
             left: Phaser.Input.Keyboard.KeyCodes.LEFT,
             right: Phaser.Input.Keyboard.KeyCodes.RIGHT,
-            up: Phaser.Input.Keyboard.KeyCodes.UP,
-        })
-        
+            up: Phaser.Input.Keyboard.KeyCodes.Z,
+        })  
+        this.nextShotAt = 0;
+        this.shotDelay = 500;   
 
     }
     update(){
@@ -96,29 +113,43 @@ export default class MainScene extends Phaser.Scene {
                 this.physics.pause();
             }
         }
+        if(this.cursors.up.isDown){
+            createBullet(this, this.avatar.x, this.avatar.y)
+        }
     }
 }
 
 //ADD ALL FUNCTIONS USED IN THE MAINSCENE
-function createAvatar(scene, x, y, sprite) {
+function createAvatar(scene, x, y) {
     createAvatarAnimations(scene, "avatar");
-    scene.avatar = new Avatar(scene, x, y, sprite);
+    scene.avatar = new Avatar(scene, x, y, "avatar").setSize(20, 30);
     scene.avatar.anims.play("stand-left")
     scene.avatar.hitCount = 0;
     scene.avatar.setPushable(false);
 }
-function createBird(scene, sprite) {
+function createBird(scene) {
     createBirdAnimations(scene, "bird");
     let y = Phaser.Math.Between(10, 100) + 50
     // let y = Math.ceil(Math.random() * 100 + 50);
-    let newBird = new Bird(scene, 790, y, sprite).setSize(0.1, 0.1);
+    let newBird = new Bird(scene, 790, y, "bird").setSize(15, 5);
     scene.birds.add(newBird)    
 }
-export function createShit(scene, sprite, coordinates){
+function createShit(scene, sprite, coordinates){
     let y = coordinates.y + 48;
     let x = coordinates.x + 24;
-    let newShit = new Shit(scene, x, y, sprite).setScale(.2);
+    let newShit = new Shit(scene, x, y, sprite).setScale(0.2);
     scene.shits.add(newShit);
+}
+function createBullet(scene, x, y){
+    if(scene.nextShotAt > scene.time.now){
+        return;
+    }
+    scene.nextShotAt = scene.shotDelay + scene.time.now
+    y = y - 10;
+    x = scene.avatar.facingRight ? x + 20 : x - 20;
+    let newBullet = new Bullet(scene, x, y, "bullet").setScale(0.2, 0.2)
+    scene.bullets.add(newBullet)
+
 }
 function createBirdAnimations(scene, sprite){
     scene.anims.create({
@@ -140,17 +171,7 @@ function createBirdAnimations(scene, sprite){
         repeat: -1
     })
 }
-function createShooting(scene, sprite){
-    scene.anims.create({
-        key: "shot",
-        frames: scene.anims.generateFrameNumbers(sprite, {
-            start: 0,
-            end: 8,
-        }),
-        frameRate: 8,
-        repeat: -1
-    })
-}
+
 function createAvatarAnimations(scene, sprite){
     scene.anims.create({
         key: "stand-right",
@@ -203,11 +224,21 @@ function createAvatarAnimations(scene, sprite){
         repeat: 1
     })
 }
+function createExplosionAnimation(scene) {
+    scene.anims.create({
+        key: "explosion",
+        frames: scene.anims.generateFrameNumbers("explosion", {
+            start: 0,
+            end: 4,
+        }),
+        frameRate: 10,
+    })
+}
 
 function onCollition(avatar, shit){
     avatar.hitCount += 1;
-    this.score.setText(`you got hit: ${avatar.hitCount}`)
-    if(avatar.hitCount === 1){
+    this.score.setText(`you got hit: ${this.avatar.hitCount}\nyou killed: ${this.birdCount} birds`)
+    if(avatar.hitCount === 10){
         shit.destroy();
         avatar.die.play()
         avatar.died()
@@ -219,6 +250,17 @@ function onCollition(avatar, shit){
     }
 }
 
+function onBulletHit(bird, bullet){
+    createExplosionAnimation(this)
+    this.birdCount++;
+    this.score.setText(`you got hit: ${this.avatar.hitCount}\nyou killed: ${this.birdCount} birds`)
+    this.explosion = new Explosion(this, bird.x, bird.y, "explosion").setScale(.5)
+    bird.destroy();
+    bullet.destroy();
+    createBird(this);
+    createBird(this);
+}
+
 function onEvent(){
     this.birds.getChildren().forEach(bird => {
         createShit(this, "poop", bird.getBounds());
@@ -227,8 +269,7 @@ function onEvent(){
 
 function onTime(){
     this.countdown--;
-    if(this.countdown === 120 || this.countdown === 50){
-        //does not create a new bird that poops but takes the poop away from the other bird
+    if(this.countdown % 15 === 0){
         createBird(this, "bird")
     }
     if(this.countdown === 0){
