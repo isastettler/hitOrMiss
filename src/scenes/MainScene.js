@@ -36,7 +36,7 @@ export default class MainScene extends Phaser.Scene {
     create(){
         this.add.image(300, 110, "bg").setScale(0.5);
         this.physics.world.setBounds(-10, 0, 620, 270);
-        createAvatar(this, 300, 275, "avatar");
+        createAvatar(this, 300, 275);
 
         // TWEENS RUN IN CASE OF AVATAR HIT OR DIED
             this.avatar.flash = this.tweens.add({
