@@ -1,6 +1,6 @@
 import "phaser";
 
-import Avatar from "../entities/Avatar";
+import Avatar from "../entities/avatar";
 import Bird from "../entities/Bird";
 import Bullet from "../entities/Bullet";
 import Shit from "../entities/Shits";
