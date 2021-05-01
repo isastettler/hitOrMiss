@@ -62,7 +62,7 @@ export default class MainScene extends Phaser.Scene {
         this.countdown = 150;
         this.birdCount = 0;
         this.text= this.add.text(50, 15, `${formatTime(this.countdown)}`)
-        this.score = this.add.text(50, 30, `you got hit: ${this.avatar.hitCount}\nyou killed: ${this.birdCount} birds`)
+        this.score = this.add.text(50, 30, `you got hit: ${this.avatar.hitCount}\nyou killed: ${this.birdCount}`)
         this.timedEvent = this.time.addEvent({delay: 1000, callback: onTime, callbackScope: this, loop: true})
         // CREATE GROUPS TO ADD EACH CRAETED BIRD/BIRDSHIT/BULLET
         this.birds = this.add.group();
@@ -237,7 +237,7 @@ function createExplosionAnimation(scene) {
 
 function onCollition(avatar, shit){
     avatar.hitCount += 1;
-    this.score.setText(`you got hit: ${this.avatar.hitCount}\nyou killed: ${this.birdCount} birds`)
+    this.score.setText(`you got hit: ${this.avatar.hitCount}\nyou killed: ${this.birdCount}`)
     if(avatar.hitCount === 10){
         shit.destroy();
         avatar.die.play()
@@ -253,7 +253,7 @@ function onCollition(avatar, shit){
 function onBulletHit(bird, bullet){
     createExplosionAnimation(this)
     this.birdCount++;
-    this.score.setText(`you got hit: ${this.avatar.hitCount}\nyou killed: ${this.birdCount} birds`)
+    this.score.setText(`you got hit: ${this.avatar.hitCount}\nyou killed: ${this.birdCount}`)
     this.explosion = new Explosion(this, bird.x, bird.y, "explosion").setScale(.5)
     bird.destroy();
     bullet.destroy();
