@@ -30,34 +30,34 @@ export default class MainScene extends Phaser.Scene {
         })
         this.load.image("poop", "/assets/poop.png")
         this.load.image("bg", "/assets/background.png")
-        
+        this.load.image("shoot", "/assets/buttons/shoot.png")
+        this.load.image("navigate", "/assets/buttons/navigate.png")
     }
     
     create(){
         this.add.image(300, 110, "bg").setScale(0.5);
         this.physics.world.setBounds(-10, 0, 620, 270);
         createAvatar(this, 300, 275);
-
-        // TWEENS RUN IN CASE OF AVATAR HIT OR DIED
-            this.avatar.flash = this.tweens.add({
-                targets: this.avatar,
-                alpha: 0.5,
-                ease: 'Cubic.easeOut',  
-                duration: 70,
-                repeat: 5,
-                yoyo: true,
-                paused: true
-            })
-            this.avatar.die = this.tweens.add({
-                targets: this.avatar,
-                props: {
-                    y: {value: 170, ease: 'Linear'}
-                },
-                duration: 500,
-                ease: 'Linear',
-                yoyo: true,
-                paused: true
-            })
+    // TWEENS RUN IN CASE OF AVATAR HIT OR DIED
+        this.avatar.flash = this.tweens.add({
+            targets: this.avatar,
+            alpha: 0.5,
+            ease: 'Cubic.easeOut',  
+            duration: 70,
+            repeat: 5,
+            yoyo: true,
+            paused: true
+        })
+        this.avatar.die = this.tweens.add({
+            targets: this.avatar,
+            props: {
+                y: {value: 170, ease: 'Linear'}
+            },
+            duration: 500,
+            ease: 'Linear',
+            yoyo: true,
+            paused: true
+        })
         // CREATE THE COUNTDOWN 
         this.countdown = 150;
         this.birdCount = 0;
@@ -95,11 +95,18 @@ export default class MainScene extends Phaser.Scene {
             this
         )
         //ADD KEYBOARD CONTROLLS FOR NAVIGATION
-        this.cursors = this.input.keyboard.addKeys({
-            left: Phaser.Input.Keyboard.KeyCodes.LEFT,
-            right: Phaser.Input.Keyboard.KeyCodes.RIGHT,
-            up: Phaser.Input.Keyboard.KeyCodes.Z,
-        })  
+        this.cursors = this.input.keyboard.createCursorKeys();
+        // this.cursors = this.input.keyboard.addKeys({
+        //     left: Phaser.Input.Keyboard.KeyCodes.LEFT,
+        //     right: Phaser.Input.Keyboard.KeyCodes.RIGHT,
+        //     up: Phaser.Input.Keyboard.KeyCodes.UP,
+        // }) 
+        //MAKE IT MOBILE 
+        if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)){
+            this.right = createMobileButtons(this, "right")
+            this.left =  createMobileButtons(this, "left")
+            this.shoot = createMobileButtons(this, "shoot")
+        }
         this.nextShotAt = 0;
         this.shotDelay = 500;   
 
@@ -151,6 +158,7 @@ function createBullet(scene, x, y){
     scene.bullets.add(newBullet)
 
 }
+
 function createBirdAnimations(scene, sprite){
     scene.anims.create({
         key: "flyingRight",
@@ -224,6 +232,43 @@ function createAvatarAnimations(scene, sprite){
         repeat: 1
     })
 }
+
+function createMobileButtons(scene, action){
+    switch(action){
+        case "right":
+            scene.add.image(520, 280, "navigate")
+            .setScale(.6)
+            .setInteractive()
+            .on("pointerdown", () => {
+                scene.cursors.right.isDown = true;
+            })
+            .on("pointerup", () => {
+                scene.cursors.right.isDown = false;
+            });
+        case "left":
+            return scene.add.image(80, 280, "navigate")
+            .setScale(.6)
+            .setFlipX(true)
+            .setInteractive()
+            .on("pointerdown", () => {
+                scene.cursors.left.isDown = true;
+            })
+            .on("pointerup", () => {
+                scene.cursors.left.isDown = false;
+            });
+        case "shoot":
+            return scene.add.image(300, 280, "shoot")
+            .setScale(.6)
+            .setInteractive()
+            .on("pointerdown", () => {
+                scene.cursors.up.isDown = true;
+            }).on("pointerup", () => {
+                scene.cursors.up.isDown = false;
+            });
+        default: console.log("this is not a valid mobile action")
+    }
+}
+
 function createExplosionAnimation(scene) {
     scene.anims.create({
         key: "explosion",
@@ -240,8 +285,13 @@ function onCollition(avatar, shit){
     this.score.setText(`you got hit: ${this.avatar.hitCount}\nyou killed: ${this.birdCount}`)
     if(avatar.hitCount === 10){
         shit.destroy();
-        avatar.die.play()
-        avatar.died()
+        if(this.right){
+            this.right.destroy();
+            this.left.destroy();
+            this.shoot.destroy();
+        }
+        avatar.die.play();
+        avatar.died();
         this.timedEvent.paused = true;
         this.scene.launch("GameOver")
     } else {

@@ -1,14 +1,15 @@
 export default {
     type: Phaser.AUTO,
-
     width: 600,
     height: 300,
-    render: {
-        // pixelArt: true,
-    },
     scale: {
+        max: {
+            width: 600,
+            height: 400
+        },
         parent: 'hitormiss',
-        autoCenter: true,
+        mode: Phaser.Scale.WIDTH_CONTROLS_HEIGHT,
+        autoCenter: Phaser.Scale.CENTER_BOTH,
     },
 
     physics: {
