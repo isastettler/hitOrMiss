@@ -1,7 +1,7 @@
-const isDev = process.env.NODE_ENV === 'development';
 
 const webpack = require('webpack');
 const path = require('path');
+const isDev = process.env.NODE_ENV === 'development';
 
 module.exports = {
     mode: isDev ? 'development' : 'production',

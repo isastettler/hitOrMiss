@@ -15,15 +15,15 @@ export default class Avatar extends Phaser.Physics.Arcade.Sprite {
         this.facingRight = false;
     }
     updateMovement(cursors){
-        if(cursors.right.isDown){
+        if(cursors.right.isDown || cursors === "right"){
             this.facingRight = true;
             this.anims.play("right", true)
-            this.setVelocityX(30);
+            this.setVelocityX(50);
         }
-        else if(cursors.left.isDown){
+        else if(cursors.left.isDown || cursors === "left"){
             this.facingRight = false;
             this.anims.play("left", true)
-            this.setVelocityX(-30)
+            this.setVelocityX(-50)
         }
         else if(cursors.up.isDown){
             this.facingRight ? this.anims.play("shoot-right", true) : this.anims.play("shoot-left", true)
