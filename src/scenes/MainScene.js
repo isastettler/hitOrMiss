@@ -41,10 +41,10 @@ export default class MainScene extends Phaser.Scene {
     // TWEENS RUN IN CASE OF AVATAR HIT OR DIED
         this.avatar.flash = this.tweens.add({
             targets: this.avatar,
-            alpha: 0.5,
-            ease: 'Cubic.easeOut',  
             duration: 70,
             repeat: 5,
+            ease: 'Cubic.easeOut',  
+            alpha: 0.5,
             yoyo: true,
             paused: true
         })
@@ -54,7 +54,6 @@ export default class MainScene extends Phaser.Scene {
                 y: {value: 170, ease: 'Linear'}
             },
             duration: 500,
-            ease: 'Linear',
             yoyo: true,
             paused: true
         })
@@ -69,11 +68,11 @@ export default class MainScene extends Phaser.Scene {
         this.shits = this.add.group();
         this.bullets = this.add.group();
 
+        this.poops;
         createBird(this, "bird");
-        this.poops = Phaser.Math.Between(500, 1000);
         this.birds.getChildren().forEach(bird => {
             bird.timer = this.time.addEvent({
-                delay: this.poops,
+                delay: this.poop,
                 callback: onEvent,
                 callbackScope: this,
                 repeat: -1
@@ -83,7 +82,7 @@ export default class MainScene extends Phaser.Scene {
         this.physics.add.collider(
 			this.avatar,
 			this.shits,
-			onCollition,
+			onCollision,
             null,
             this
 		);
@@ -96,11 +95,7 @@ export default class MainScene extends Phaser.Scene {
         )
         //ADD KEYBOARD CONTROLLS FOR NAVIGATION
         this.cursors = this.input.keyboard.createCursorKeys();
-        // this.cursors = this.input.keyboard.addKeys({
-        //     left: Phaser.Input.Keyboard.KeyCodes.LEFT,
-        //     right: Phaser.Input.Keyboard.KeyCodes.RIGHT,
-        //     up: Phaser.Input.Keyboard.KeyCodes.UP,
-        // }) 
+       
         //MAKE IT MOBILE 
         if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)){
             this.right = createMobileButtons(this, "right")
@@ -136,8 +131,8 @@ function createAvatar(scene, x, y) {
 }
 function createBird(scene) {
     createBirdAnimations(scene, "bird");
-    let y = Phaser.Math.Between(10, 100) + 50
-    // let y = Math.ceil(Math.random() * 100 + 50);
+    scene.poop = Phaser.Math.Between(500, 1000);
+    let y = Phaser.Math.Between(60, 150);
     let newBird = new Bird(scene, 790, y, "bird").setSize(15, 5);
     scene.birds.add(newBird)    
 }
@@ -280,11 +275,11 @@ function createExplosionAnimation(scene) {
     })
 }
 
-function onCollition(avatar, shit){
+function onCollision(avatar, shit){
     avatar.hitCount += 1;
-    this.score.setText(`you got hit: ${this.avatar.hitCount}\nyou killed: ${this.birdCount}`)
+    this.score.setText(`you got hit: ${avatar.hitCount}\nyou killed: ${this.birdCount}`)
+    shit.destroy();
     if(avatar.hitCount === 10){
-        shit.destroy();
         if(this.right){
             this.right.destroy();
             this.left.destroy();
@@ -296,7 +291,6 @@ function onCollition(avatar, shit){
         this.scene.launch("GameOver")
     } else {
         avatar.flash.play();
-        shit.destroy();
     }
 }
 
